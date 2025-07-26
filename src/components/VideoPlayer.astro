@@ -1,0 +1,240 @@
+---
+import eventConfig from '@data/event-config.json';
+
+const { waltzVideo } = eventConfig;
+---
+
+<div class="video-player" id="video-player">
+  <button class="video-toggle" aria-label="Reproducir música de vals" aria-expanded="false">
+    <svg class="play-icon" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M8 5v14l11-7z"/>
+    </svg>
+    <svg class="music-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 18V5l12-2v13"></path>
+      <circle cx="6" cy="18" r="3"></circle>
+      <circle cx="18" cy="16" r="3"></circle>
+    </svg>
+  </button>
+  
+  <div class="video-container" aria-hidden="true">
+    <div class="video-header">
+      <span>{waltzVideo.title}</span>
+      <button class="video-close" aria-label="Cerrar reproductor">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="video-wrapper">
+      <div id="youtube-player"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .video-player {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+  }
+
+  .video-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    box-shadow: var(--shadow-lg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .video-toggle:hover {
+    transform: scale(1.1);
+    background: var(--color-secondary);
+  }
+
+  .video-toggle:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .video-toggle svg {
+    position: absolute;
+    transition: opacity 0.3s ease;
+  }
+
+  .play-icon {
+    opacity: 1;
+  }
+
+  .music-icon {
+    opacity: 0;
+  }
+
+  .video-toggle:hover .play-icon {
+    opacity: 0;
+  }
+
+  .video-toggle:hover .music-icon {
+    opacity: 1;
+  }
+
+  .video-container {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    background: var(--color-white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    width: 320px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+  }
+
+  .video-container.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .video-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-light);
+    background: var(--color-primary);
+    color: var(--color-white);
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  .video-close {
+    background: none;
+    border: none;
+    color: var(--color-white);
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s ease;
+  }
+
+  .video-close:hover {
+    opacity: 0.8;
+  }
+
+  .video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+  }
+
+  #youtube-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .video-player {
+      bottom: 1rem;
+      right: 1rem;
+    }
+
+    .video-toggle {
+      width: 50px;
+      height: 50px;
+    }
+
+    .video-container {
+      width: calc(100vw - 2rem);
+      right: -1rem;
+      bottom: 70px;
+    }
+  }
+</style>
+
+<script define:vars={{ youtubeId: waltzVideo.youtubeId }}>
+  let player;
+  let playerReady = false;
+
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player('youtube-player', {
+      height: '360',
+      width: '640',
+      videoId: youtubeId,
+      playerVars: {
+        'playsinline': 1,
+        'modestbranding': 1,
+        'rel': 0
+      },
+      events: {
+        'onReady': () => { playerReady = true; }
+      }
+    });
+  }
+
+  // Load YouTube API
+  const tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  const firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+  // Make function global
+  window.onYouTubeIframeAPIReady = onYouTubeIframeAPIReady;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const toggle = document.querySelector('.video-toggle');
+    const container = document.querySelector('.video-container');
+    const close = document.querySelector('.video-close');
+
+    toggle.addEventListener('click', () => {
+      const isOpen = container.classList.contains('active');
+      container.classList.toggle('active');
+      toggle.setAttribute('aria-expanded', !isOpen);
+      container.setAttribute('aria-hidden', isOpen);
+      
+      if (!isOpen && playerReady && player) {
+        player.playVideo();
+      } else if (isOpen && playerReady && player) {
+        player.pauseVideo();
+      }
+    });
+
+    close.addEventListener('click', () => {
+      container.classList.remove('active');
+      toggle.setAttribute('aria-expanded', 'false');
+      container.setAttribute('aria-hidden', 'true');
+      if (playerReady && player) {
+        player.pauseVideo();
+      }
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.video-player')) {
+        container.classList.remove('active');
+        toggle.setAttribute('aria-expanded', 'false');
+        container.setAttribute('aria-hidden', 'true');
+        if (playerReady && player) {
+          player.pauseVideo();
+        }
+      }
+    });
+  });
+</script>

@@ -1,11 +1,231 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Layout from '@layouts/Layout.astro';
+import Hero from '@components/Hero.astro';
+import Countdown from '@components/Countdown.astro';
+import EventDetails from '@components/EventDetails.astro';
+import Gallery from '@components/Gallery.astro';
+import MapSection from '@components/MapSection.astro';
+import VideoPlayer from '@components/VideoPlayer.astro';
+import eventConfig from '@data/event-config.json';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const pageTitle = `XV Años de ${eventConfig.celebrant.name}`;
 ---
 
-<Layout>
-	<Welcome />
+<Layout title={pageTitle}>
+  <main>
+    <Hero />
+    <Countdown />
+    <EventDetails />
+    <Gallery />
+    <MapSection />
+    <VideoPlayer />
+  </main>
+
+  <nav class="floating-nav" aria-label="Navegación principal">
+    <button class="nav-toggle" aria-label="Abrir menú de navegación" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+    <ul class="nav-menu">
+      <li><a href="#inicio">Inicio</a></li>
+      <li><a href="#cuenta-regresiva">Cuenta Regresiva</a></li>
+      <li><a href="#detalles">Detalles</a></li>
+      <li><a href="#galeria">Galería</a></li>
+      <li><a href="#ubicaciones">Ubicaciones</a></li>
+    </ul>
+  </nav>
 </Layout>
+
+<style>
+  .floating-nav {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 999;
+  }
+
+  .nav-toggle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    box-shadow: var(--shadow-lg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+
+  .nav-toggle:hover {
+    background: var(--color-secondary);
+    transform: scale(1.1);
+  }
+
+  .nav-toggle:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  .nav-menu {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: var(--color-white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    list-style: none;
+    padding: 1rem 0;
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+  }
+
+  .nav-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .nav-menu li {
+    margin: 0;
+  }
+
+  .nav-menu a {
+    display: block;
+    padding: 0.75rem 1.5rem;
+    color: var(--color-dark);
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .nav-menu a:hover {
+    background: var(--color-light);
+    color: var(--color-primary);
+  }
+
+  @media (max-width: 768px) {
+    .floating-nav {
+      top: 1rem;
+      right: 1rem;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const navToggle = document.querySelector('.nav-toggle') as HTMLButtonElement;
+    const navMenu = document.querySelector('.nav-menu') as HTMLUListElement;
+
+    navToggle.addEventListener('click', () => {
+      const isOpen = navMenu.classList.contains('active');
+      navMenu.classList.toggle('active');
+      navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.floating-nav')) {
+        navMenu.classList.remove('active');
+        navToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    // Close menu when clicking a link
+    navMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navMenu.classList.remove('active');
+        navToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // Parallax effect
+    const parallaxBg = document.querySelector<HTMLElement>('.parallax-bg');
+    const parallaxOverlay = document.querySelector<HTMLElement>('.parallax-overlay');
+    // const sections = document.querySelectorAll('.section');
+    const heroSection = document.querySelector<HTMLElement>('.hero');
+
+    let ticking = false;
+
+    function updateParallax() {
+      const scrolled = window.pageYOffset;
+      const windowHeight = window.innerHeight;
+      const speed = 0.5;
+      
+      // Update background position for parallax effect
+      if (parallaxBg) {
+        const yPos = -(scrolled * speed);
+        parallaxBg.style.transform = `translate3d(0, ${yPos}px, 0)`;
+      }
+      
+      // Update overlay opacity based on scroll
+      if (parallaxOverlay) {
+        const heroHeight = heroSection ? heroSection.offsetHeight : windowHeight;
+        const overlayOpacity = Math.min(scrolled / heroHeight, 1);
+        parallaxOverlay.style.opacity = String(overlayOpacity * 0.5);
+      }
+      
+      ticking = false;
+    }
+    
+    function requestTick() {
+      if (!ticking) {
+        window.requestAnimationFrame(updateParallax);
+        ticking = true;
+      }
+    }
+    
+    // Throttled scroll event
+    window.addEventListener('scroll', requestTick);
+    
+    // Reveal animations
+    const revealElements = document.querySelectorAll('.container > *, .event-card, .map-item, .gallery-item');
+    
+    revealElements.forEach(el => {
+      el.classList.add('parallax-reveal');
+    });
+    
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+    
+    revealElements.forEach(el => {
+      revealObserver.observe(el);
+    });
+    
+    // Add fade-in animation to elements as they come into view
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('fade-in');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    document.querySelectorAll('.event-card, .map-item').forEach(el => {
+      observer.observe(el);
+    });
+    
+    // Initial parallax update
+    updateParallax();
+  });
+</script>

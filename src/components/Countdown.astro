@@ -1,0 +1,158 @@
+---
+import eventConfig from '@data/event-config.json';
+
+const targetDate = eventConfig.ceremony.date;
+---
+
+<section class="countdown-section section" id="cuenta-regresiva">
+  <div class="container">
+    <h2 class="text-center text-primary">Faltan</h2>
+    <div class="countdown" data-target={targetDate}>
+      <div class="countdown-item">
+        <div class="flip-card" data-unit="days">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <span class="flip-number">00</span>
+            </div>
+            <div class="flip-card-back">
+              <span class="flip-number">00</span>
+            </div>
+          </div>
+        </div>
+        <span class="countdown-label">Días</span>
+      </div>
+      <div class="countdown-item">
+        <div class="flip-card" data-unit="hours">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <span class="flip-number">00</span>
+            </div>
+            <div class="flip-card-back">
+              <span class="flip-number">00</span>
+            </div>
+          </div>
+        </div>
+        <span class="countdown-label">Horas</span>
+      </div>
+      <div class="countdown-item">
+        <div class="flip-card" data-unit="minutes">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <span class="flip-number">00</span>
+            </div>
+            <div class="flip-card-back">
+              <span class="flip-number">00</span>
+            </div>
+          </div>
+        </div>
+        <span class="countdown-label">Minutos</span>
+      </div>
+      <div class="countdown-item">
+        <div class="flip-card" data-unit="seconds">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <span class="flip-number">00</span>
+            </div>
+            <div class="flip-card-back">
+              <span class="flip-number">00</span>
+            </div>
+          </div>
+        </div>
+        <span class="countdown-label">Segundos</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @import "../styles/countdown.css";
+  
+  .countdown-section {
+    /* Background now handled by global styles */
+  }
+
+  .countdown {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 3rem;
+    flex-wrap: wrap;
+  }
+
+  .countdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .countdown-label {
+    font-size: 1.25rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 768px) {
+    .countdown { gap: 1rem; }
+    .countdown-label { font-size: 1rem; }
+  }
+</style>
+
+<script>
+  function initCountdown() {
+    const countdown = document.querySelector('.countdown');
+    if (!countdown) return;
+
+    const date = countdown instanceof HTMLElement
+      ? countdown.dataset.target || new Date().toISOString()
+      : new Date().toISOString();
+    const targetDate = new Date(date).getTime();
+
+    function updateFlipCard(unit: string, value: string) {
+      const card = document.querySelector(`[data-unit="${unit}"]`);
+      if (!card) return;
+      
+      const front = card.querySelector('.flip-card-front .flip-number');
+      const back = card.querySelector('.flip-card-back .flip-number');
+      
+      if (front && back && front.textContent !== value) {
+        back.textContent = value;
+        card.classList.add('flip');
+        
+        setTimeout(() => {
+          front.textContent = value;
+          card.classList.remove('flip');
+        }, 600);
+      }
+    }
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        ['days', 'hours', 'minutes', 'seconds'].forEach(unit => {
+          updateFlipCard(unit, '00');
+        });
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      updateFlipCard('days', String(days).padStart(2, '0'));
+      updateFlipCard('hours', String(hours).padStart(2, '0'));
+      updateFlipCard('minutes', String(minutes).padStart(2, '0'));
+      updateFlipCard('seconds', String(seconds).padStart(2, '0'));
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  }
+
+  document.addEventListener('DOMContentLoaded', initCountdown);
+</script>

@@ -1,0 +1,39 @@
+{
+  "celebrant": {
+    "name": "Areli",
+    "date": "2025-08-09T20:00:00.000Z"
+  },
+  "theme": {
+    "primaryColor": "#1e40af",
+    "secondaryColor": "#3b82f6",
+    "accentColor": "#60a5fa"
+  },
+  "ceremony": {
+    "date": "2025-08-09T14:00:00",
+    "time": "14:00",
+    "venue": "Parroquia de Santiago Apóstol",
+    "address": "C. 5 de Mayo #4, Centro, 90550 Atltzayanca, Tlax.",
+    "mapUrl": "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1268.907878190738!2d-97.7957104563788!3d19.431922440396665!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d000727873a0a5%3A0xd6886f4d323e636d!2sParroquia%20de%20Santiago%20Ap%C3%B3stol!5e0!3m2!1ses-419!2smx!4v1753477990107!5m2!1ses-419!2smx",
+    "image": "/images/church.jpg"
+  },
+  "reception": {
+    "date": "2025-08-09T15:00:00",
+    "time": "15:00",
+    "venue": "Salón Multiusos ALYS",
+    "address": "Calle 2 Pte 24, Guadalupe, 90550 Atltzayanca, Tlax.",
+    "mapUrl": "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1268.905852097423!2d-97.79811660411575!3d19.43218176446629!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x85d0012d0623be3d%3A0x68a7d4e26ded811d!2sSal%C3%B3n%20Multiusos%20ALYS!5e0!3m2!1ses-419!2smx!4v1753478071873!5m2!1ses-419!2smx",
+    "image": "/images/venue.jpeg"
+  },
+  "waltzVideo": {
+    "youtubeId": "TkGALUCgEw0",
+    "title": "Vals"
+  },
+  "parents": {
+    "mother": "María Elena Rodríguez",
+    "father": "Carlos Martínez"
+  },
+  "godparents": {
+    "padrino": "Roberto García",
+    "madrina": "Ana López"
+  }
+}
